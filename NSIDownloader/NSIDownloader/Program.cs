@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,14 +25,40 @@ namespace NSIDownloader
             NSIURL += "-81.58418,30.25165,-81.58161,30.26939,-81.55898,30.26939,-81.55281,30.24998,-81.58418,30.25165";
             System.Console.WriteLine("downloading data from " + NSIURL);
 
-            WebClient nsiWebClient = new WebClient();
-            string output = nsiWebClient.DownloadString(NSIURL);
-            //System.IO.MemoryStream ms = new MemoryStream(output);
-            //ms
+            _ = FetchData(NSIURL);
+
+            while (true)
+            {
+                //keeping command prompt open
+            }
+
+
+
+
+            //System.Console.WriteLine();
             
-            System.Console.WriteLine(output);
+        }
+
+        private static async Task FetchData(string NSIURL)
+        {
+            using (var httpClientHandler = new HttpClientHandler())
+            {
+                httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+                using (var client = new HttpClient(httpClientHandler))
+                {
+
+                    var message = await client.GetAsync(new System.Uri(NSIURL));
+                    if (message.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine(message.Content);
+                    }
+                    else
+                    {
+                        Console.WriteLine(message.StatusCode);
+                    }
+                }
+            }
             System.Console.Read();
         }
     }
 }
-//-81.58418,30.25165,-81.58161,30.26939,-81.55898,30.26939,-81.55281,30.24998,-81.58418,30.25165
