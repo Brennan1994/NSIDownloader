@@ -14,36 +14,39 @@ namespace NSIDownloader
     {
         static void Main(string[] args)
         {
-            string HECNSIRedirectURL = "http://www.hec.usace.army.mil/fwlink/?linkid=1&type=string";
-
+            //CHECKING the HEC Redirect URL
+            string HECNSIRedirectURL = "http://www.hec.usace.army.mil/fwlink/?linkid=1&type=string"; //HEC Redirect URL points to the wrong URL
             WebClient webClient = new WebClient();
             string NSIURL = webClient.DownloadString(HECNSIRedirectURL);
             webClient.Dispose();
 
-            NSIURL = "https://ec2-3-212-154-125.compute-1.amazonaws.com/nsiapi/";
-            NSIURL += "structures?bbox=";
-            NSIURL += "-81.58418,30.25165,-81.58161,30.26939,-81.55898,30.26939,-81.55281,30.24998,-81.58418,30.25165";
+            //Defining the data to be downloaded
+            //NSIURL = "https://ec2-3-212-154-125.compute-1.amazonaws.com/nsiapi/"; // This link is outdated. Was present in a PPT Presentation, but we now have our own domain to link to. 
+            NSIURL = "https://nsi-dev.sec.usace.army.mil/nsiapi/"; //Download Link
+            NSIURL += "structures?bbox=";// Pulling Structures using bounding box
+            NSIURL += "-81.58418,30.25165,-81.58161,30.26939,-81.55898,30.26939,-81.55281,30.24998,-81.58418,30.25165";//defining coordinates of box
             System.Console.WriteLine("downloading data from " + NSIURL);
 
-            _ = FetchData(NSIURL);
 
+            //Calling the download methods
+            _ = FetchDataWithCredentials(NSIURL);
+            //FetchDataNoCreds(NSIURL);
+            
+            
             while (true)
             {
                 //keeping command prompt open
             }
 
-
-
-
-            //System.Console.WriteLine();
-            
         }
 
-        private static async Task FetchData(string NSIURL)
+
+
+        private static async Task FetchDataWithCredentials(string NSIURL)
         {
             using (var httpClientHandler = new HttpClientHandler())
             {
-                httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+                httpClientHandler.ServerCertificateCustomValidationCallback = (message,cert,chain,errors) => sccvc(message,cert,chain,errors);
                 using (var client = new HttpClient(httpClientHandler))
                 {
 
@@ -60,5 +63,23 @@ namespace NSIDownloader
             }
             System.Console.Read();
         }
+
+        private static bool sccvc(HttpRequestMessage message, System.Security.Cryptography.X509Certificates.X509Certificate2 cert, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors errors)
+        {
+            return true;
+        }
+
+
+        private static void FetchDataNoCreds(string NSIURL)
+        {
+            using (var webClient = new WebClient())
+            {
+                var download = webClient.DownloadString(NSIURL);
+                Console.WriteLine(download);
+            }
+            System.Console.Read();
+        }
+
+
+        }
     }
-}
