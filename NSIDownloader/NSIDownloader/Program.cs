@@ -23,6 +23,7 @@ namespace NSIDownloader
             //Defining the data to be downloaded
             //NSIURL = "https://ec2-3-212-154-125.compute-1.amazonaws.com/nsiapi/"; // This link is outdated. Was present in a PPT Presentation, but we now have our own domain to link to. 
             NSIURL = "https://nsi-dev.sec.usace.army.mil/nsiapi/"; //Download Link
+            //NSIURL = "https://cwbi-mae2-proxy.sec.usace.army.mil/nsiapi/"; //another download link attempt
             NSIURL += "structures?bbox=";// Pulling Structures using bounding box
             NSIURL += "-81.58418,30.25165,-81.58161,30.26939,-81.55898,30.26939,-81.55281,30.24998,-81.58418,30.25165";//defining coordinates of box
             System.Console.WriteLine("downloading data from " + NSIURL);
@@ -50,7 +51,7 @@ namespace NSIDownloader
                 using (var client = new HttpClient(httpClientHandler))
                 {
 
-                    var message = await client.GetAsync(new System.Uri(NSIURL));
+                    var message = await client.GetAsync(new Uri(NSIURL));
                     if (message.IsSuccessStatusCode)
                     {
                         Console.WriteLine(message.Content);
