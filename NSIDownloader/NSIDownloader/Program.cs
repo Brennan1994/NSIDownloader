@@ -15,10 +15,12 @@ namespace NSIDownloader
         static void Main(string[] args)
         {
             //CHECKING the HEC Redirect URL
-            string HECNSIRedirectURL = "http://www.hec.usace.army.mil/fwlink/?linkid=1&type=string"; //HEC Redirect URL points to the wrong URL
-            WebClient webClient = new WebClient();
-            string NSIURL = webClient.DownloadString(HECNSIRedirectURL);
-            webClient.Dispose();
+            //string HECNSIRedirectURL = "http://www.hec.usace.army.mil/fwlink/?linkid=1&type=string"; //HEC Redirect URL points to the wrong URL
+            //WebClient webClient = new WebClient();
+            //string NSIURL = webClient.DownloadString(HECNSIRedirectURL);
+            //webClient.Dispose();
+
+            string NSIURL;
 
             //Defining the data to be downloaded
             //NSIURL = "https://ec2-3-212-154-125.compute-1.amazonaws.com/nsiapi/"; // This link is outdated. Was present in a PPT Presentation, but we now have our own domain to link to. 
