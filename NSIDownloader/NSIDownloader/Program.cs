@@ -30,14 +30,14 @@ namespace NSIDownloader
 
 
             //Calling the download methods
-            _ = FetchDataWithCredentials(NSIURL);
+            var _ = FetchDataWithCredentials(NSIURL);
             //FetchDataNoCreds(NSIURL);
             
             
             while (true)
             {
                 //keeping command prompt open
-            }
+             }
 
         }
 
@@ -45,24 +45,32 @@ namespace NSIDownloader
 
         private static async Task FetchDataWithCredentials(string NSIURL)
         {
-            using (var httpClientHandler = new HttpClientHandler())
+            try
             {
-                httpClientHandler.ServerCertificateCustomValidationCallback = (message,cert,chain,errors) => sccvc(message,cert,chain,errors);
-                using (var client = new HttpClient(httpClientHandler))
+                using (var httpClientHandler = new HttpClientHandler())
                 {
+                    httpClientHandler.ServerCertificateCustomValidationCallback = (message,cert,chain,errors) => sccvc(message,cert,chain,errors);
+                    using (var client = new HttpClient(httpClientHandler))
+                    {
 
-                    var message = await client.GetAsync(new Uri(NSIURL));
-                    if (message.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine(message.Content);
-                    }
-                    else
-                    {
-                        Console.WriteLine(message.StatusCode);
+                        var message = await client.GetAsync(new Uri(NSIURL));
+                        if (message.IsSuccessStatusCode)
+                        {
+                            Console.WriteLine(message.Content);
+                        }
+                        else
+                        {
+                            Console.WriteLine(message.StatusCode);
+                        }
                     }
                 }
+                System.Console.Read();
+            }catch(Exception e)
+            {
+                System.Console.WriteLine(e.InnerException);
+                System.Console.Read();
             }
-            System.Console.Read();
+
         }
 
         private static bool sccvc(HttpRequestMessage message, System.Security.Cryptography.X509Certificates.X509Certificate2 cert, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors errors)
