@@ -44,7 +44,7 @@ namespace NSIDownloader
         }
 
 
-
+        //These two methods are the proper way to access the database according to Randy  
         private static async Task FetchDataWithCredentials(string NSIURL)
         {
             using (var httpClientHandler = new HttpClientHandler())
@@ -66,13 +66,15 @@ namespace NSIDownloader
             }
             System.Console.Read();
         }
-
         private static bool sccvc(HttpRequestMessage message, System.Security.Cryptography.X509Certificates.X509Certificate2 cert, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors errors)
         {
             return true;
         }
 
 
+
+
+        //First Attempt. Fails. Not the recommended approach.
         private static void FetchDataNoCreds(string NSIURL)
         {
             using (var webClient = new WebClient())
