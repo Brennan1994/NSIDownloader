@@ -14,85 +14,36 @@ namespace NSIDownloader
     {
         static void Main(string[] args)
         {
-            //CHECKING the HEC Redirect URL
-            //string HECNSIRedirectURL = "http://www.hec.usace.army.mil/fwlink/?linkid=1&type=string"; //HEC Redirect URL points to the wrong URL
-            //WebClient webClient = new WebClient();
-            //string NSIURL = webClient.DownloadString(HECNSIRedirectURL);
-            //webClient.Dispose();
-
-            string NSIURL;
-
-            //Defining the data to be downloaded
-            //NSIURL = "https://ec2-3-212-154-125.compute-1.amazonaws.com/nsiapi/"; // This link is outdated. Was present in a PPT Presentation, but we now have our own domain to link to. 
-            NSIURL = "https://nsi-dev.sec.usace.army.mil/nsiapi/"; //Download Link
-            //NSIURL = "https://cwbi-mae2-proxy.sec.usace.army.mil/nsiapi/"; //another download link attempt
-            NSIURL += "structures?bbox=";// Pulling Structures using bounding box
-            NSIURL += "-81.58418,30.25165,-81.58161,30.26939,-81.55898,30.26939,-81.55281,30.24998,-81.58418,30.25165";//defining coordinates of box
-            System.Console.WriteLine("downloading data from " + NSIURL);
-
-
-            //Calling the download methods
-            var _ = FetchDataWithCredentials(NSIURL);
-            //FetchDataNoCreds(NSIURL);
-            
-            
-            while (true)
+             string getStructures(string bbox)
             {
-                //keeping command prompt open
-             }
+                var apiUrl = String.Format($"https://nsi-dev.sec.usace.army.mil/nsiapi/structures?bbox={bbox}");
+                //next line disables all certificate checks.  Probably should not do this in production
+                ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, error) => { return true; };
 
-        }
-
-
-        //These two methods are the proper way to access the database according to Randy  
-        private static async Task FetchDataWithCredentials(string NSIURL)
-        {
-            try
-            {
-                using (var httpClientHandler = new HttpClientHandler())
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(apiUrl);
+                using (WebResponse response = request.GetResponse())
                 {
-                    httpClientHandler.ServerCertificateCustomValidationCallback = (message,cert,chain,errors) => sccvc(message,cert,chain,errors);
-                    using (var client = new HttpClient(httpClientHandler))
+                    Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader reader = new StreamReader(receiveStream, Encoding.UTF8))
                     {
-
-                        var message = await client.GetAsync(new Uri(NSIURL));
-                        if (message.IsSuccessStatusCode)
+                        //line below will read and wait for all content.  It is commented out because the better approach is to read and process the stream as it is received
+                        //Console.WriteLine(reader.ReadToEnd()); 
+                        int bufferSize = 1024;
+                        char[] buffer = new char[bufferSize];
+                        while (!reader.EndOfStream) //process the stream in chunks
                         {
-                            Console.WriteLine(message.Content);
-                        }
-                        else
-                        {
-                            Console.WriteLine(message.StatusCode);
+                            reader.ReadBlock(buffer, 0, bufferSize);
+                            Console.WriteLine(new string(buffer));
                         }
                     }
                 }
-                System.Console.Read();
-            }catch(Exception e)
-            {
-                System.Console.WriteLine(e.InnerException);
-                System.Console.Read();
+                Console.WriteLine("\nFinished");
+                return null;
             }
-
+            string myStructures =  getStructures("-81.58418,30.25165,-81.58161,30.26939,-81.55898,30.26939,-81.55281,30.24998,-81.58418,30.25165");
         }
-        private static bool sccvc(HttpRequestMessage message, System.Security.Cryptography.X509Certificates.X509Certificate2 cert, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors errors)
-        {
-            return true;
-        }
-
-
-
-
-        //First Attempt. Fails. Not the recommended approach.
-        private static void FetchDataNoCreds(string NSIURL)
-        {
-            using (var webClient = new WebClient())
-            {
-                var download = webClient.DownloadString(NSIURL);
-                Console.WriteLine(download);
-            }
-            System.Console.Read();
-        }
-
-
-        }
+       
     }
+}
